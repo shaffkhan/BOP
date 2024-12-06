@@ -16,7 +16,7 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/authenticate", {
+      const response = await fetch("https://bop-893288152502.us-central1.run.app/api/authenticate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export function LoginForm() {
             href="/forgot-password"
             className="text-[#FF6B35] hover:text-[#FF6B35]/90 text-sm"
           >
-            Forgot Username or Password
+            Forgot Username or Account Number
           </a>
         </div>
       </div>
@@ -94,7 +94,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="flex-1 rounded-md border border-transparent bg-[#FF6B35] px-4 py-2 text-sm font-medium text-white hover:bg-[#FF6B35]/90 focus:outline-none focus:ring-2 focus:ring-[#FF6B35] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center justify-center flex-1 rounded-md border border-transparent bg-[#FF6B35] px-4 py-2 text-sm font-medium text-white hover:bg-[#FF6B35]/90 focus:outline-none focus:ring-2 focus:ring-[#FF6B35] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

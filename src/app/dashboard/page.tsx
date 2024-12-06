@@ -28,7 +28,7 @@ const [acc,setAcc]= useState('')
       }
 
       try {
-        const response = await fetch("http://localhost:8000/api/balance", {
+        const response = await fetch("https://bop-893288152502.us-central1.run.app/api/balance", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

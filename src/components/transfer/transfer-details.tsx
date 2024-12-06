@@ -65,7 +65,7 @@ export function TransferDetails({
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/check-transaction-risk",
+        "https://bop-893288152502.us-central1.run.app/api/check-transaction-risk",
         {
           method: "POST",
           headers: {
