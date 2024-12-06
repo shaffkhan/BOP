@@ -1,40 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { ChevronLeft, Home } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { AccountSelect } from "./account-select"
-import { TransferDetails } from "./transfer-details"
-import { ReviewDetails } from "./review-details"
-import type { TransferStep, TransferFormData } from "@/lib/types"
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, Home } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { AccountSelect } from "./account-select";
+import { TransferDetails } from "./transfer-details";
+import { ReviewDetails } from "./review-details";
 
-const steps: TransferStep[] = ["account-select", "transfer-details", "review"]
+const steps: any[] = ["account-select", "transfer-details", "review"];
 
 export function TransferForm() {
-  const [currentStep, setCurrentStep] = useState<TransferStep>("account-select")
-  const [formData, setFormData] = useState<Partial<TransferFormData>>({})
-  const router = useRouter()
+  const [currentStep, setCurrentStep] = useState("account-select");
+  const [formData, setFormData] = useState({});
+  const router = useRouter();
 
-  const updateFormData = (data: Partial<TransferFormData>) => {
-    setFormData(prev => ({ ...prev, ...data }))
-  }
+  const updateFormData = (data: any) => {
+    setFormData((prev) => ({ ...prev, ...data }));
+  };
 
   const handleNext = () => {
-    const currentIndex = steps.indexOf(currentStep)
+    const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
-      setCurrentStep(steps[currentIndex + 1])
+      setCurrentStep(steps[currentIndex + 1]);
     }
-  }
+  };
 
   const handleBack = () => {
-    const currentIndex = steps.indexOf(currentStep)
+    const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
-      setCurrentStep(steps[currentIndex - 1])
+      setCurrentStep(steps[currentIndex - 1]);
     } else {
-      router.push('/dashboard')
+      router.push("/dashboard");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-[#FFF5F2]">
@@ -49,7 +48,10 @@ export function TransferForm() {
           </button>
           <h1 className="text-xl font-medium">Transfer Funds</h1>
           <div className="flex-1" />
-          <button onClick={() => router.push('/dashboard')} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="p-2 hover:bg-white/10 rounded-full transition-colors"
+          >
             <Home className="h-6 w-6" />
           </button>
         </div>
@@ -81,15 +83,14 @@ export function TransferForm() {
             )}
             {currentStep === "review" && (
               <ReviewDetails
-                formData={formData as TransferFormData}
+                formData={formData}
                 onBack={() => setCurrentStep("transfer-details")}
-                onComplete={() => router.push('/dashboard')}
+                onComplete={() => router.push("/dashboard")}
               />
             )}
           </motion.div>
         </AnimatePresence>
       </main>
     </div>
-  )
+  );
 }
-

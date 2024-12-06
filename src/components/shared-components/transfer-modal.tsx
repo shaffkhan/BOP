@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
 export function TransferModal({
@@ -29,18 +29,11 @@ export function TransferModal({
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
           onClick={onClose}
         >
-        
-          <motion.div
-            initial={{ scale: 0.95 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.95 }}
+          <div
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-lg w-full max-w-md p-6"
           >
@@ -100,18 +93,16 @@ export function TransferModal({
                   rows={3}
                 />
               </div>
-             
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+
+              <button
                 className="w-full bg-[#FF6B35] text-white py-2 rounded-md hover:bg-[#FF6B35]/90 transition-colors"
                 type="submit"
               >
                 Transfer Funds
-              </motion.button>
+              </button>
             </form>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
       )}
     </AnimatePresence>
   );

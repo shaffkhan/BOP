@@ -1,10 +1,3 @@
-export interface TransferFormData {
-  payFrom: string;
-  accountNumber: string;
-  amount: number;
-  category: string;
-  comments?: string;
-}
 
 export interface RiskCheckResponse {
   success: boolean;

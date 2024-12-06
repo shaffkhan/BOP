@@ -1,10 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { TransferFormData } from "@/lib/types";
 
 interface ReviewDetailsProps {
-  formData: TransferFormData;
+  formData: any;
   onBack: () => void;
   onComplete: () => void;
 }
@@ -64,24 +63,20 @@ export function ReviewDetails({
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
-        <motion.button
+        <button
           type="button"
           onClick={onBack}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
           className="flex-1 bg-gray-100 text-gray-900 py-3 rounded-md hover:bg-gray-200 transition-colors"
         >
           BACK
-        </motion.button>
+        </button>
 
-        <motion.button
+        <button
           onClick={handleSubmit}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
           className="flex-1 bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors"
         >
           CONFIRM TRANSFER
-        </motion.button>
+        </button>
       </div>
     </div>
   );

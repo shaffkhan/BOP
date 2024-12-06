@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {  AnimatePresence } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -17,7 +17,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { AlertCircle, AlertTriangle } from "lucide-react";
-import type { TransferFormData, RiskCheckResponse } from "@/lib/types";
+import type { RiskCheckResponse } from "@/lib/types";
 
 const categories = [
   "Transfer to Family & Friends",
@@ -32,8 +32,8 @@ const categories = [
 ] as const;
 
 interface TransferDetailsProps {
-  formData: Partial<TransferFormData>;
-  onUpdate: (data: Partial<TransferFormData>) => void;
+  formData: any;
+  onUpdate: (data: any) => void;
   onNext: () => void;
 }
 
@@ -191,14 +191,12 @@ export function TransferDetails({
           </div>
         </div>
 
-        <motion.button
+        <button
           type="submit"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
           className="w-full bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors"
         >
           REVIEW DETAILS
-        </motion.button>
+        </button>
       </form>
 
       <AnimatePresence>
@@ -210,14 +208,7 @@ export function TransferDetails({
                   Transaction Warning
                 </DialogTitle>
               </DialogHeader>
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                variants={modalVariants}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="mt-4 text-center"
-              >
+              <div className="mt-4 text-center">
                 <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
                 <DialogDescription className="text-lg font-semibold mb-2">
                   {riskCheckResponse?.warning_message}
@@ -226,24 +217,20 @@ export function TransferDetails({
                   {riskCheckResponse?.message}
                 </p>
                 <div className="flex justify-center space-x-4">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
                     onClick={() => setShowWarningModal(false)}
                     className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md"
                   >
                     Review
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  </button>
+                  <button
                     onClick={onNext}
                     className="px-4 py-2 bg-[#FF6B35] text-white rounded-md"
                   >
                     Proceed Anyway
-                  </motion.button>
+                  </button>
                 </div>
-              </motion.div>
+              </div>
             </DialogContent>
           </Dialog>
         )}
@@ -259,14 +246,7 @@ export function TransferDetails({
                   Insufficient Funds
                 </DialogTitle>
               </DialogHeader>
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                variants={modalVariants}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="mt-4 text-center"
-              >
+              <div className="mt-4 text-center">
                 <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
                 <DialogDescription className="text-lg font-semibold mb-2">
                   {riskCheckResponse?.warning_message}
@@ -274,15 +254,13 @@ export function TransferDetails({
                 <p className="text-sm text-gray-500 mb-4">
                   {riskCheckResponse?.message}
                 </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button
                   onClick={() => setShowInsufficientFundsModal(false)}
                   className="px-4 py-2 bg-[#FF6B35] text-white rounded-md"
                 >
                   Review Transaction
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
             </DialogContent>
           </Dialog>
         )}
