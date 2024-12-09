@@ -41,8 +41,7 @@ export function TransferDetails({
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [showInsufficientFundsModal, setShowInsufficientFundsModal] =
     useState(false);
-  const [riskCheckResponse, setRiskCheckResponse] =
-    useState<RiskCheckResponse | null>(null);
+  const [apiResponse, setApiResponse] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -67,13 +66,13 @@ export function TransferDetails({
       let apiUrl =
         "https://bopar-304959215088.asia-south1.run.app/api/check-transaction-risk";
 
-      if (formData.category === "Ride Hailing Services") {
+      if (formData.category === "Ride hailing services") {
         apiUrl =
           "https://bopar-304959215088.asia-south1.run.app/api/check-ride-hailing";
-      } else if (formData.category === "Medical Expenses") {
+      } else if (formData.category === "Medical bills") {
         apiUrl =
           "https://bopar-304959215088.asia-south1.run.app/api/check-medical-expenses";
-      } else if (formData.category === "Dine Out Services") {
+      } else if (formData.category === "Food and Meal") {
         apiUrl =
           "https://bopar-304959215088.asia-south1.run.app/api/check-dine-out";
       }
@@ -84,8 +83,8 @@ export function TransferDetails({
         transaction_amount: formData.amount,
       });
 
-      const data: RiskCheckResponse = response.data;
-      setRiskCheckResponse(data);
+      const data = response.data;
+      setApiResponse(data);
 
       if (!data.success || !data.can_proceed) {
         if (data.remaining_balance === data.current_balance) {
@@ -97,7 +96,7 @@ export function TransferDetails({
         onNext();
       }
     } catch (error) {
-      console.error("Error checking transaction risk:", error);
+      console.error("Error checking transaction:", error);
     } finally {
       setIsLoading(false);
     }
@@ -215,7 +214,7 @@ export function TransferDetails({
       </form>
 
       <AnimatePresence>
-        {(showWarningModal || showInsufficientFundsModal) && (
+        {(showWarningModal || showInsufficientFundsModal) && apiResponse && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <div className="flex justify-between items-center mb-4">
@@ -241,11 +240,26 @@ export function TransferDetails({
                   <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
                 )}
                 <p className="text-lg font-semibold mb-2">
-                  {riskCheckResponse?.warning_message}
+                  {apiResponse.warning_message || "Warning"}
                 </p>
                 <p className="text-sm text-gray-500 mb-4">
-                  {riskCheckResponse?.message}
+                  {apiResponse.message}
                 </p>
+                {apiResponse.recommendation && (
+                  <p className="text-sm text-blue-600 mb-4">
+                    Recommendation: {apiResponse.recommendation}
+                  </p>
+                )}
+                {apiResponse.current_balance !== undefined && (
+                  <p className="text-sm text-gray-600 mb-2">
+                    Current Balance: Rs. {apiResponse.current_balance}
+                  </p>
+                )}
+                {apiResponse.remaining_balance !== undefined && (
+                  <p className="text-sm text-gray-600 mb-4">
+                    Remaining Balance: Rs. {apiResponse.remaining_balance}
+                  </p>
+                )}
                 <div className="flex justify-center space-x-4">
                   <button
                     onClick={() => {

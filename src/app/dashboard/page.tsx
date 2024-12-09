@@ -87,6 +87,18 @@ export default function DashboardPage() {
     fetchData();
   }, []);
 
+  const [latitude, setLatitude] = useState<any>();
+  const [longitude, setLongitude] = useState<any>();
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+      });
+    }
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#8B2B03] to-[#FF6B35] flex items-center justify-center">
