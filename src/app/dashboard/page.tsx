@@ -5,6 +5,16 @@ import { AccountCard } from "@/components/shared-components/account-card";
 import { FeatureGrid } from "@/components/shared-components/feature-grid";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import axios from "axios";
+
+interface CreditCardRecommendation {
+  success: boolean;
+  user_name: string;
+  current_balance: number;
+  balance_date: string;
+  show_recommendation: boolean;
+  message: string;
+}
 
 export default function DashboardPage() {
   const [account, setAccount] = useState({
@@ -14,12 +24,15 @@ export default function DashboardPage() {
     branch: "Xeven Solutions LLC",
   });
   const [isLoading, setIsLoading] = useState(true);
-const [acc,setAcc]= useState('')
+  const [acc, setAcc] = useState("");
+  const [creditCardRecommendation, setCreditCardRecommendation] =
+    useState<CreditCardRecommendation | null>(null);
+
   useEffect(() => {
-    const fetchBalance = async () => {
+    const fetchData = async () => {
       const accountNo = localStorage.getItem("accountNo");
       const userName = localStorage.getItem("userName");
-      setAcc(accountNo as string)
+      setAcc(accountNo as string);
 
       if (!accountNo || !userName) {
         toast.error("User information not found. Please login again.");
@@ -28,34 +41,50 @@ const [acc,setAcc]= useState('')
       }
 
       try {
-        const response = await fetch("https://bopar-304959215088.asia-south1.run.app/api/balance", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ account_no: accountNo }),
-        });
+        // Fetch balance
+        const balanceResponse = await axios.post(
+          "https://bopar-304959215088.asia-south1.run.app/api/balance",
+          {
+            account_no: accountNo,
+          }
+        );
 
-        const data = await response.json();
-
-        if (data.success) {
+        if (balanceResponse.data.success) {
           setAccount((prevAccount) => ({
             ...prevAccount,
             name: userName,
-            balance: data.balance,
+            balance: balanceResponse.data.balance,
           }));
-          localStorage.setItem("balance", data.balance.toString());
+          localStorage.setItem(
+            "balance",
+            balanceResponse.data.balance.toString()
+          );
         } else {
           toast.error("Failed to fetch balance. Please try again.");
         }
+
+        // Check for low balance and credit card recommendation
+        const creditCardResponse = await axios.post(
+          "https://bopar-304959215088.asia-south1.run.app/api/check-low-balance-suggest-credit-card",
+          {
+            account_no: accountNo,
+          }
+        );
+
+        if (
+          creditCardResponse.data.success &&
+          creditCardResponse.data.show_recommendation
+        ) {
+          setCreditCardRecommendation(creditCardResponse.data);
+        }
       } catch (error) {
-        toast.error("An error occurred while fetching balance.");
+        toast.error("An error occurred while fetching data.");
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchBalance();
+    fetchData();
   }, []);
 
   if (isLoading) {
@@ -76,11 +105,15 @@ const [acc,setAcc]= useState('')
             alt="digiBOP"
             className="h-12"
           />
-          <div className="w-6" /> 
+          <div className="w-6" />
         </header>
 
         {/* Account Card */}
-        <AccountCard account={account} acc={acc}/>
+        <AccountCard
+          account={account}
+          acc={acc}
+          creditCardRecommendation={creditCardRecommendation}
+        />
 
         {/* Features Grid */}
         <FeatureGrid />
@@ -88,5 +121,3 @@ const [acc,setAcc]= useState('')
     </div>
   );
 }
-
-

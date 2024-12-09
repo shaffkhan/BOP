@@ -1,5 +1,8 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 interface ReviewDetailsProps {
   formData: any;
@@ -12,11 +15,26 @@ export function ReviewDetails({
   onBack,
   onComplete,
 }: ReviewDetailsProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const router = useRouter();
   const accountNo = localStorage.getItem("accountNo");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Processing transfer:", formData);
-    onComplete();
+    setIsProcessing(true);
+
+    // Simulate processing time
+    setTimeout(() => {
+      setIsProcessing(false);
+      setShowSuccess(true);
+
+      // Simulate showing success message before redirecting
+      setTimeout(() => {
+        onComplete();
+        router.push("/dashboard");
+      }, 1500);
+    }, 2000);
   };
 
   return (
@@ -66,17 +84,37 @@ export function ReviewDetails({
           type="button"
           onClick={onBack}
           className="flex-1 bg-gray-100 text-gray-900 py-3 rounded-md hover:bg-gray-200 transition-colors"
+          disabled={isProcessing || showSuccess}
         >
           BACK
         </button>
 
         <button
           onClick={handleSubmit}
-          className="flex-1 bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors"
+          className="flex-1 bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors flex items-center justify-center"
+          disabled={isProcessing || showSuccess}
         >
-          CONFIRM TRANSFER
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : showSuccess ? (
+            "Transfer Successful!"
+          ) : (
+            "CONFIRM TRANSFER"
+          )}
         </button>
       </div>
+
+      {showSuccess && (
+        <div className="mt-4 p-4 bg-green-100 text-green-800 rounded-md">
+          <p className="text-center font-medium">
+            Your transfer has been processed successfully. You will be
+            redirected to the dashboard shortly.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
