@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {  AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -9,25 +9,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { AlertCircle, AlertTriangle } from "lucide-react";
+import { AlertCircle, AlertTriangle, X, Loader2 } from "lucide-react";
 import type { RiskCheckResponse } from "@/lib/types";
+import axios from "axios";
 
 const categories = [
   "Transfer to Family & Friends",
   "Business Payment",
   "House Rent",
   "School Fees",
-  "Ride Hailing Services",
-  "Other Payment",
+  "Ride hailing services",
+  "Medical bills",
+  "Food and Meal",
   "Club Fee",
-  "medical bills",
+  "Other Payment",
   "Other",
 ] as const;
 
@@ -48,6 +43,7 @@ export function TransferDetails({
     useState(false);
   const [riskCheckResponse, setRiskCheckResponse] =
     useState<RiskCheckResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const userName = localStorage.getItem("userName");
@@ -59,27 +55,36 @@ export function TransferDetails({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     const accountNo = localStorage.getItem("accountNo");
-    if (!accountNo || !formData.category || !formData.amount) return;
+    if (!accountNo || !formData.category || !formData.amount) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
-      const response = await fetch(
-        "https://bop-893288152502.us-central1.run.app/api/check-transaction-risk",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            account_no: accountNo,
-            transaction_type: formData.category,
-            transaction_amount: formData.amount,
-          }),
-        }
-      );
+      let apiUrl =
+        "https://bop-893288152502.us-central1.run.app/api/check-transaction-risk";
 
-      const data: RiskCheckResponse = await response.json();
+      if (formData.category === "Ride Hailing Services") {
+        apiUrl =
+          "https://bopar-304959215088.asia-south1.run.app/api/check-ride-hailing";
+      } else if (formData.category === "Medical Expenses") {
+        apiUrl =
+          "https://bopar-304959215088.asia-south1.run.app/api/check-medical-expenses";
+      } else if (formData.category === "Dine Out Services") {
+        apiUrl =
+          "https://bopar-304959215088.asia-south1.run.app/api/check-dine-out";
+      }
+
+      const response = await axios.post(apiUrl, {
+        account_no: accountNo,
+        transaction_type: formData.category,
+        transaction_amount: formData.amount,
+      });
+
+      const data: RiskCheckResponse = response.data;
       setRiskCheckResponse(data);
 
       if (!data.success || !data.can_proceed) {
@@ -93,6 +98,8 @@ export function TransferDetails({
       }
     } catch (error) {
       console.error("Error checking transaction risk:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -113,7 +120,7 @@ export function TransferDetails({
               Pay From
             </label>
             <Select
-              value={formData.payFrom}
+              value={userAccount}
               onValueChange={(value) => onUpdate({ payFrom: value })}
             >
               <SelectTrigger id="pay-from-select">
@@ -193,76 +200,74 @@ export function TransferDetails({
 
         <button
           type="submit"
-          className="w-full bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors"
+          className="w-full bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors flex items-center justify-center"
+          disabled={isLoading}
         >
-          REVIEW DETAILS
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            "REVIEW DETAILS"
+          )}
         </button>
       </form>
 
       <AnimatePresence>
-        {showWarningModal && (
-          <Dialog open={showWarningModal} onOpenChange={setShowWarningModal}>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle className="text-center">
-                  Transaction Warning
-                </DialogTitle>
-              </DialogHeader>
-              <div className="mt-4 text-center">
-                <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
-                <DialogDescription className="text-lg font-semibold mb-2">
+        {(showWarningModal || showInsufficientFundsModal) && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold">
+                  {showInsufficientFundsModal
+                    ? "Insufficient Funds"
+                    : "Transaction Warning"}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowWarningModal(false);
+                    setShowInsufficientFundsModal(false);
+                  }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="text-center">
+                {showInsufficientFundsModal ? (
+                  <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+                ) : (
+                  <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
+                )}
+                <p className="text-lg font-semibold mb-2">
                   {riskCheckResponse?.warning_message}
-                </DialogDescription>
+                </p>
                 <p className="text-sm text-gray-500 mb-4">
                   {riskCheckResponse?.message}
                 </p>
                 <div className="flex justify-center space-x-4">
                   <button
-                    onClick={() => setShowWarningModal(false)}
-                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md"
+                    onClick={() => {
+                      setShowWarningModal(false);
+                      setShowInsufficientFundsModal(false);
+                    }}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
                   >
                     Review
                   </button>
-                  <button
-                    onClick={onNext}
-                    className="px-4 py-2 bg-[#FF6B35] text-white rounded-md"
-                  >
-                    Proceed Anyway
-                  </button>
+                  {!showInsufficientFundsModal && (
+                    <button
+                      onClick={onNext}
+                      className="px-4 py-2 bg-[#FF6B35] text-white rounded-md hover:bg-[#FF6B35]/90 transition-colors"
+                    >
+                      Proceed Anyway
+                    </button>
+                  )}
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
-        )}
-
-        {showInsufficientFundsModal && (
-          <Dialog
-            open={showInsufficientFundsModal}
-            onOpenChange={setShowInsufficientFundsModal}
-          >
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle className="text-center">
-                  Insufficient Funds
-                </DialogTitle>
-              </DialogHeader>
-              <div className="mt-4 text-center">
-                <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-                <DialogDescription className="text-lg font-semibold mb-2">
-                  {riskCheckResponse?.warning_message}
-                </DialogDescription>
-                <p className="text-sm text-gray-500 mb-4">
-                  {riskCheckResponse?.message}
-                </p>
-                <button
-                  onClick={() => setShowInsufficientFundsModal(false)}
-                  className="px-4 py-2 bg-[#FF6B35] text-white rounded-md"
-                >
-                  Review Transaction
-                </button>
-              </div>
-            </DialogContent>
-          </Dialog>
+            </div>
+          </div>
         )}
       </AnimatePresence>
     </>

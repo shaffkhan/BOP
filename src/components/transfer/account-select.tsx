@@ -1,6 +1,8 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import axios from "axios";
 import {
   Select,
   SelectContent,
@@ -8,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UpcomingPaymentsModal } from "../shared-components/payment-modal";
 
 const banks = [
   "The Bank of Punjab",
@@ -18,9 +21,42 @@ const banks = [
 ] as const;
 
 export function AccountSelect({ formData, onUpdate, onNext }: any) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [upcomingPayments, setUpcomingPayments] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) {
+      fetchUpcomingPayments();
+    }
+  }, [isLoading]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext();
+  };
+
+  const fetchUpcomingPayments = async () => {
+    try {
+      const accountNo = localStorage.getItem("accountNo");
+      if (!accountNo) {
+        throw new Error("Account number not found");
+      }
+
+      const response = await axios.post(
+        "https://bopar-304959215088.asia-south1.run.app/api/check-upcoming-expenses",
+        {
+          account_no: accountNo,
+          months_ahead: 1,
+        }
+      );
+      setUpcomingPayments(response.data);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("Error fetching upcoming payments:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -115,12 +151,30 @@ export function AccountSelect({ formData, onUpdate, onNext }: any) {
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="w-full bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors"
-      >
-        NEXT
-      </button>
+      <div className="grid grid-cols-2 gap-4">
+        <button
+          type="submit"
+          className="h-[48px] bg-[#FF6B35] text-white rounded-md hover:bg-[#FF6B35]/90 transition-colors font-medium"
+        >
+          NEXT
+        </button>
+        <button
+          type="button"
+          onClick={() => setIsLoading(true)}
+          disabled={isLoading}
+          className="h-[48px] border-2 border-[#FF6B35] text-[#FF6B35] rounded-md hover:bg-[#FF6B35]/10 transition-colors font-medium"
+        >
+          {isLoading ? "Loading..." : "View Upcoming Payments"}
+        </button>
+      </div>
+
+      {upcomingPayments && (
+        <UpcomingPaymentsModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          data={upcomingPayments}
+        />
+      )}
     </form>
   );
 }
