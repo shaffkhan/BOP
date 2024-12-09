@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
 
 interface ReviewDetailsProps {
   formData: any;
@@ -24,17 +26,31 @@ export function ReviewDetails({
     e.preventDefault();
     setIsProcessing(true);
 
-    // Simulate processing time
-    setTimeout(() => {
-      setIsProcessing(false);
-      setShowSuccess(true);
+    try {
+      const response = await axios.post(
+        "https://bopar-304959215088.asia-south1.run.app/api/process-transaction",
+        {
+          account_no: accountNo,
+          amount: formData.amount,
+        }
+      );
 
-      // Simulate showing success message before redirecting
-      setTimeout(() => {
-        onComplete();
-        router.push("/dashboard");
-      }, 1500);
-    }, 2000);
+      if (response.data.success) {
+        setIsProcessing(false);
+        setShowSuccess(true);
+
+        setTimeout(() => {
+          onComplete();
+          router.push("/dashboard");
+        }, 1500);
+      } else {
+        throw new Error(response.data.message || "Transaction failed");
+      }
+    } catch (error) {
+      setIsProcessing(false);
+      toast.error("Transaction failed. Please try again.");
+      console.error("Transaction error:", error);
+    }
   };
 
   return (
