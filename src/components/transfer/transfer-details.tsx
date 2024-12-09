@@ -65,7 +65,7 @@ export function TransferDetails({
 
     try {
       let apiUrl =
-        "https://bop-893288152502.us-central1.run.app/api/check-transaction-risk";
+        "https://bopar-304959215088.asia-south1.run.app/api/check-transaction-risk";
 
       if (formData.category === "Ride Hailing Services") {
         apiUrl =

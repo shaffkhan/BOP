@@ -16,7 +16,7 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("https://bop-893288152502.us-central1.run.app/api/authenticate", {
+      const response = await fetch("https://bopar-304959215088.asia-south1.run.app/api/authenticate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
