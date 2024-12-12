@@ -14,12 +14,27 @@ const features = [
   { id: "accounts", title: "Accounts", icon: "📊", href: "#" },
   { id: "cards", title: "Cards", icon: "💳", href: "#" },
   { id: "zakat", title: "Zakat / Donation", icon: "🤲", href: "#" },
-  { id: "services", title: "Services", icon: "🏛️", href: "#" },
+  { id: "services", title: "Nearby ATMs", icon: "🏛️", href: "/nearby-atms" },
   { id: "roshan", title: "Roshan Digital Account", icon: "✨", href: "#" },
   { id: "vouchers", title: "Vouchers and MiniApps", icon: "🎫", href: "#" },
 ];
 
 export function FeatureGrid() {
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 },
+  };
+
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">
       {features.map((feature) => (
