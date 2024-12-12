@@ -98,7 +98,7 @@ export default function DashboardPage() {
       });
     }
   }, []);
-
+  console.log("loc", latitude, longitude);
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#8B2B03] to-[#FF6B35] flex items-center justify-center">

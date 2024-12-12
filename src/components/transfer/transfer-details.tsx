@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Select,
   SelectContent,
@@ -9,9 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AlertCircle, AlertTriangle, X, Loader2 } from "lucide-react";
-import type { RiskCheckResponse } from "@/lib/types";
+import { Loader2 } from 'lucide-react';
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WarningModal } from "../warningModal";
+
+
 
 const categories = [
   "Transfer to Family & Friends",
@@ -109,181 +115,120 @@ export function TransferDetails({
 
   return (
     <>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-lg p-4 shadow-sm space-y-4">
-          <div>
-            <label
-              htmlFor="pay-from-select"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Pay From
-            </label>
-            <Select
-              value={userAccount}
-              onValueChange={(value) => onUpdate({ payFrom: value })}
-            >
-              <SelectTrigger id="pay-from-select">
-                <SelectValue placeholder="Select account" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={userAccount}>{userAccount}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Pay To
-            </label>
-            <div className="p-3 bg-gray-50 rounded-md">
-              <p className="text-[#FF6B35] font-medium">MUBASHIR AHMAD</p>
-              <p className="text-gray-600">
-                {formData.accountNumber?.slice(0, 8)}...
-              </p>
-              <p className="text-gray-600">Standard</p>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Amount
-            </label>
-            <input
-              type="number"
-              value={formData.amount || ""}
-              onChange={(e) => onUpdate({ amount: Number(e.target.value) })}
-              className="w-full p-2 border rounded-md"
-              placeholder="Enter amount"
-              required
-              min="1"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="category-select"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Select Transaction Category
-            </label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => onUpdate({ category: value })}
-            >
-              <SelectTrigger id="category-select">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Comments (optional)
-            </label>
-            <textarea
-              value={formData.comments || ""}
-              onChange={(e) => onUpdate({ comments: e.target.value })}
-              className="w-full p-2 border rounded-md"
-              placeholder="Add Comments"
-              rows={3}
-            />
-          </div>
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-[#FF6B35] text-white py-3 rounded-md hover:bg-[#FF6B35]/90 transition-colors flex items-center justify-center"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing...
-            </>
-          ) : (
-            "REVIEW DETAILS"
-          )}
-        </button>
-      </form>
-
-      <AnimatePresence>
-        {(showWarningModal || showInsufficientFundsModal) && apiResponse && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">
-                  {showInsufficientFundsModal
-                    ? "Insufficient Funds"
-                    : "Transaction Warning"}
-                </h2>
-                <button
-                  onClick={() => {
-                    setShowWarningModal(false);
-                    setShowInsufficientFundsModal(false);
-                  }}
-                  className="text-gray-500 hover:text-gray-700"
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">Transfer Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="pay-from-select" className="block text-sm font-medium text-gray-700 mb-1">
+                  Pay From
+                </label>
+                <Select
+                  value={userAccount}
+                  onValueChange={(value) => onUpdate({ payFrom: value })}
                 >
-                  <X size={24} />
-                </button>
+                  <SelectTrigger id="pay-from-select">
+                    <SelectValue placeholder="Select account" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={userAccount}>{userAccount}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="text-center">
-                {showInsufficientFundsModal ? (
-                  <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
-                ) : (
-                  <AlertTriangle className="mx-auto h-12 w-12 text-yellow-500 mb-4" />
-                )}
-                <p className="text-lg font-semibold mb-2">
-                  {apiResponse.warning_message || "Warning"}
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  {apiResponse.message}
-                </p>
-                {apiResponse.recommendation && (
-                  <p className="text-sm text-blue-600 mb-4">
-                    Recommendation: {apiResponse.recommendation}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Pay To
+                </label>
+                <div className="p-3 bg-gray-50 rounded-md">
+                  <p className="text-[#FF6B35] font-medium">MUBASHIR AHMAD</p>
+                  <p className="text-gray-600">
+                    {formData.accountNumber?.slice(0, 8)}...
                   </p>
-                )}
-                {apiResponse.current_balance !== undefined && (
-                  <p className="text-sm text-gray-600 mb-2">
-                    Current Balance: Rs. {apiResponse.current_balance}
-                  </p>
-                )}
-                {apiResponse.remaining_balance !== undefined && (
-                  <p className="text-sm text-gray-600 mb-4">
-                    Remaining Balance: Rs. {apiResponse.remaining_balance}
-                  </p>
-                )}
-                <div className="flex justify-center space-x-4">
-                  <button
-                    onClick={() => {
-                      setShowWarningModal(false);
-                      setShowInsufficientFundsModal(false);
-                    }}
-                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-                  >
-                    Review
-                  </button>
-                  {!showInsufficientFundsModal && (
-                    <button
-                      onClick={onNext}
-                      className="px-4 py-2 bg-[#FF6B35] text-white rounded-md hover:bg-[#FF6B35]/90 transition-colors"
-                    >
-                      Proceed Anyway
-                    </button>
-                  )}
+                  <p className="text-gray-600">Standard</p>
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Amount
+                </label>
+                <Input
+                  type="number"
+                  value={formData.amount || ""}
+                  onChange={(e) => onUpdate({ amount: Number(e.target.value) })}
+                  placeholder="Enter amount"
+                  required
+                  min="1"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="category-select" className="block text-sm font-medium text-gray-700 mb-1">
+                  Select Transaction Category
+                </label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) => onUpdate({ category: value })}
+                >
+                  <SelectTrigger id="category-select">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Comments (optional)
+                </label>
+                <Textarea
+                  value={formData.comments || ""}
+                  onChange={(e) => onUpdate({ comments: e.target.value })}
+                  placeholder="Add Comments"
+                  rows={3}
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </AnimatePresence>
+
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-medium py-3 rounded-full transition-all duration-300 ease-in-out transform hover:scale-105"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "REVIEW DETAILS"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <WarningModal
+        isOpen={showWarningModal || showInsufficientFundsModal}
+        onClose={() => {
+          setShowWarningModal(false);
+          setShowInsufficientFundsModal(false);
+        }}
+        onProceed={onNext}
+        apiResponse={apiResponse}
+        isInsufficientFunds={showInsufficientFundsModal}
+      />
     </>
   );
 }
+

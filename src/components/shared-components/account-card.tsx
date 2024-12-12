@@ -31,7 +31,7 @@ export function AccountCard({
       {/* Welcome Card */}
       <div className="bg-[#FF6B35] rounded-lg p-6 text-white">
         <div className="flex items-center gap-2 mb-4">
-          <div className="h-8 w-8 bg-white/20 rounded-full" />
+          {/* <div className="h-8 w-8 bg-white/20 rounded-full" /> */}
           <h1 className="text-xl font-medium">Welcome, {account.name}</h1>
         </div>
 
@@ -74,7 +74,7 @@ export function AccountCard({
           <div className="flex items-center justify-between">
             <span>IBAN</span>
             <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
-              <QRIcon className="h-5 w-5" />
+              {/* <QRIcon className="h-5 w-5" /> */}
             </button>
           </div>
           <p className="text-xl font-medium">{account.iban}</p>
